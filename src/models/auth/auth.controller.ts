@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
+import { AuthRequest } from "../../middlewares/auth.middleware";
+import prisma from "../../config/prisma";
 
 export class AuthController {
     static async register( req: Request, res: Response){
@@ -32,5 +34,35 @@ export class AuthController {
                 message: error.message,
             })
         }
+    }
+
+    static async me (req: AuthRequest, res: Response){
+       try{
+        const userId = req.user!.userId;
+        
+        const user = await prisma.user.findUnique({
+            where: {id: userId},
+            select: {
+                id: true,
+                email: true,
+                createdAt: true,
+                updatedAt: true,
+            }
+        });
+        if(!user){
+            return res.status(404).json({message: "User not found"});
+        }
+        return res.json({ user });
+
+       }catch(error){
+        return res.status(500).json({message: "Server error"});
+       }
+    }
+
+    static async adminOnly (req: AuthRequest, res: Response){
+        return res.json({
+            message: "Welcome, Admin!",
+            user: req.user,
+        })
     }
 }
