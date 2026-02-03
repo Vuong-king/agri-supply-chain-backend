@@ -38,13 +38,17 @@ export class AuthController {
 
     static async me (req: AuthRequest, res: Response){
        try{
-        const userId = req.user!.userId;
+        const userId = req.user!.id;
         
         const user = await prisma.user.findUnique({
             where: {id: userId},
             select: {
                 id: true,
                 email: true,
+                name: true,
+                role: true,
+                phone: true,
+                status: true,
                 createdAt: true,
                 updatedAt: true,
             }
