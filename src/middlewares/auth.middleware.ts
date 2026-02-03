@@ -6,10 +6,14 @@ export interface JwtPayload {
   email: string;
   role: "USER" | "ADMIN";
 }
-export interface AuthRequest extends Request {
-  user?: JwtPayload;
-}
 
+export interface AuthRequest extends Request{
+  user?: {
+    id: string;
+    email: string;
+    role: "USER" | "ADMIN";
+  }
+}
 // ================= AUTH =================
 
 export const autheMiddleware = (
@@ -27,23 +31,27 @@ export const autheMiddleware = (
   //verify token
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-    
+
     if (typeof decoded === "string") {
       return res.status(401).json({ message: "Invalid token payload" });
     }
 
-    req.user = decoded as JwtPayload;
+    req.user = {
+      id: decoded.userId,
+      email: decoded.email,
+      role: decoded.role,
+    };
     next();
   } catch (error) {
     return res.status(401).json({ message: "Invalid token" });
   }
 };
 // ================= AUTHORIZE =================
-  export const authorize =
+export const authorize =
   (role: ("USER" | "ADMIN")[]) =>
-  (req: AuthRequest, res: Response, next: NextFunction) => {
-    if (!req.user || !role.includes(req.user.role)){
-        return res.status(403).json({message: "Forbidden"});
+  (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !role.includes(req.user.role)) {
+      return res.status(403).json({ message: "Forbidden" });
     }
     next();
-  }
+  };

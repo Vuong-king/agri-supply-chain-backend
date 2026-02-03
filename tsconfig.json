@@ -3,6 +3,7 @@
     "target": "ES2020",
     "module": "CommonJS",
     "moduleResolution": "node",
+    "typeRoots": ["./node_modules/@types", "./src/types"],
 
     "rootDir": "./src",
     "outDir": "./dist",
