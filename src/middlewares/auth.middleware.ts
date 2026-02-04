@@ -1,17 +1,18 @@
+import { UserRole } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 export interface JwtPayload {
   userId: string;
   email: string;
-  role: "USER" | "ADMIN";
+  role: UserRole;
 }
 
 export interface AuthRequest extends Request{
   user?: {
     id: string;
     email: string;
-    role: "USER" | "ADMIN";
+    role: UserRole;
   }
 }
 // ================= AUTH =================
@@ -48,7 +49,7 @@ export const autheMiddleware = (
 };
 // ================= AUTHORIZE =================
 export const authorize =
-  (role: ("USER" | "ADMIN")[]) =>
+  (role: ("USER" | "ADMIN" | "MANAGER")[]) =>
   (req: Request, res: Response, next: NextFunction) => {
     if (!req.user || !role.includes(req.user.role)) {
       return res.status(403).json({ message: "Forbidden" });

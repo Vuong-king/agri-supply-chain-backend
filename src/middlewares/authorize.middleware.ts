@@ -1,6 +1,7 @@
+import { UserRole } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 
-export const authorizeRole = (roles: ("ADMIN" | "USER")[]) => {
+export const authorizeRole = (roles: UserRole[]) => {
     return (req: Request, res: Response, next: NextFunction) =>{
         const user = req.user; 
 
