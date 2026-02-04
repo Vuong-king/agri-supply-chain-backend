@@ -10,23 +10,87 @@ datasource db {
 enum UserRole {
   USER
   ADMIN
+  MANAGER
 }
-
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String?   
-  role      UserRole @default(USER)
-  phone     String?
-  status    UserStatus @default(ACTIVE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 
 enum UserStatus {
   ACTIVE
   BLOCKED
 }
 
+enum WarehouseStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum StockAction {
+  IMPORT
+  EXPORT
+  ADJUST
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  name      String?
+  role      UserRole   @default(USER)
+  phone     String?
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  sku         String   @unique
+  description String?
+  unit        String // kg, box, piece
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  inventories Inventory[]
+}
+
+model Warehouse {
+  id        String          @id @default(uuid())
+  name      String
+  address   String?
+  status    WarehouseStatus @default(ACTIVE)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  inventories Inventory[]
+}
+
+model Inventory {
+  id          String @id @default(uuid())
+  productId   String
+  warehouseId String
+
+  physicalStock  Int @default(0)
+  availableStock Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product   Product   @relation(fields: [productId], references: [id])
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+
+  logs InventoryLog[]
+
+  @@unique([productId, warehouseId])
+}
+
+model InventoryLog {
+  id          String      @id @default(uuid())
+  inventoryId String
+  change      Int // +10, -5
+  type        StockAction
+  reason      String?
+  createdBy   String // userId
+  createdAt   DateTime    @default(now())
+
+  inventory Inventory @relation(fields: [inventoryId], references: [id])
+}
