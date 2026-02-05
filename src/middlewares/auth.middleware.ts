@@ -49,7 +49,7 @@ export const autheMiddleware = (
 };
 // ================= AUTHORIZE =================
 export const authorize =
-  (role: ("USER" | "ADMIN" | "MANAGER")[]) =>
+  (role: ("USER" | "ADMIN" | "MANAGER" | "STAFF")[]) =>
   (req: Request, res: Response, next: NextFunction) => {
     if (!req.user || !role.includes(req.user.role)) {
       return res.status(403).json({ message: "Forbidden" });
